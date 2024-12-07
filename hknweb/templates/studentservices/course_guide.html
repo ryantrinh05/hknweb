@@ -66,6 +66,7 @@
         {% for group in groups %}
             <input type="checkbox" id="{{ group }}" {% if group in request.GET.groups %} checked {% endif %} onclick="action('{{ group }}')"> {{ group }}
         {% endfor %}
+        
     </div>
 
     <h2 style="text-align: center;">
@@ -77,6 +78,7 @@
     </h2>
 
     <div style="width: 100%; overflow: scroll;">
+        <!-- Originally 2000 by 1200 -->
         <svg class="graph" width="2000" height="1200"></svg>
     </div>
 
@@ -98,6 +100,7 @@
         function renderd3(groups) {
             d3.json("{% url 'studentservices:course_guide_data' %}?groups=" + groups, function(error, graph) {
                 if (error) throw error;
+                console.log(graph);
 
                 var link = svg
                     .append("g")
@@ -105,7 +108,17 @@
                     .selectAll("line")
                         .data(graph.links)
                         .enter().append("line")
-                            .attr("stroke-width", 2);
+                            .attr("stroke-width", 2)
+                            .attr("stroke-dasharray", function(d) {
+                                return d.type == "recommended" ? "4, 4" : "none";
+
+                            })
+                            .attr("stroke", function(d) {
+                                return d.type == "required" ? "gray" : "none";
+
+                            });
+                            
+                            
 
                 var node = svg
                     .append("g")
@@ -189,7 +202,7 @@
 
                 var labels = node
                     .append("a")
-                        .attr("xlink:href", function (d) { return d.link; })
+                        .attr("xlink:href", function (d) { return d.link})
                         .attr("target", "_blank")
                     .append("text")
                         .text(function(d) { return d.id; })

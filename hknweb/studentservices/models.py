@@ -49,6 +49,7 @@ class CourseGuideNode(models.Model):
     is_title = models.BooleanField(default=False)
     x_0 = models.IntegerField(blank=True, null=True)
     y_0 = models.IntegerField(blank=True, null=True)
+    link = models.CharField(max_length=MAX_STRLEN, blank=True)
 
     def __str__(self):
         return self.name
@@ -58,14 +59,20 @@ class CourseGuideAdjacencyList(models.Model):
     source = models.ForeignKey(
         CourseGuideNode, models.CASCADE, related_name="adjacency_list_source"
     )
-    targets = models.ManyToManyField(
+    target = models.ManyToManyField(
         CourseGuideNode, related_name="adjacency_list_target"
     )
-
+    
+    type = models.CharField(
+        max_length=20,
+        choices=[('required', 'Required'), ('recommended', 'Recommended')],
+        default='Required'
+    )
+    
     def __str__(self):
         source = str(self.source)
-        targets = ", ".join(str(t) for t in self.targets.all())
-        return f"{source}: [{targets}]"
+        target = ", ".join(str(t) for t in self.target.all())
+        return f"{source}: [{target}]"
 
 
 class CourseGuideGroup(models.Model):

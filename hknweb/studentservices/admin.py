@@ -44,19 +44,21 @@ class ToursAdmin(admin.ModelAdmin):
 
 @admin.register(CourseGuideNode)
 class CourseGuideNodeAdmin(admin.ModelAdmin):
-    fields = ["name", "is_title", "x_0", "y_0"]
-    list_display = ["name", "is_title", "x_0", "y_0"]
+    fields = ["name", "is_title", "x_0", "y_0", "link"]
+    list_display = ["name", "is_title", "x_0", "y_0", "link"]
 
 
 @admin.register(CourseGuideAdjacencyList)
 class CourseGuideAdjacencyListAdmin(admin.ModelAdmin):
-    fields = ["source", "targets"]
-    list_display = ["source"]
-    filter_horizontal = ["targets"]
+    fields = ["source", "target", "type"]
+    list_display = ["source", "type"]
+    filter_horizontal = ["target"]
+    list_filter = ["type"]
 
 
 @admin.register(CourseGuideGroup)
 class CourseGuideGroupAdmin(admin.ModelAdmin):
+    list_display = ["name"]
     filter_horizontal = ["nodes"]
 
 

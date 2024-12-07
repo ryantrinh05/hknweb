@@ -126,17 +126,28 @@ def course_guide_data(request):
 
     graph = dict()
     for adjacency_list in CourseGuideAdjacencyList.objects.all():
+
         if adjacency_list.source.name not in node_groups:
             continue
-
-        graph[adjacency_list.source.name] = [
-            node.name
-            for node in adjacency_list.targets.all()
-            if node.name in node_groups
-        ]
-
-    course_surveys_link = reverse("course_surveys:index")
-    link_template = f"{course_surveys_link}?search_by=courses&search_value="
+        if adjacency_list.source.name in graph:
+            graph[adjacency_list.source.name].extend([
+                (node.name, adjacency_list.type)
+                for node in adjacency_list.target.all()
+                if node.name in node_groups
+                
+            ])
+        else:
+            graph[adjacency_list.source.name] = [
+                (node.name, adjacency_list.type)
+                for node in adjacency_list.target.all()
+                if node.name in node_groups
+            ]
+        
+        
+    
+    # ORIGINAL LINK SETUP
+    # course_surveys_link = reverse("course_surveys:index")
+    # link_template = f"{course_surveys_link}?search_by=courses&search_value="
     nodes = []
     for n in CourseGuideNode.objects.all():
         if n.name not in node_groups:
@@ -144,7 +155,8 @@ def course_guide_data(request):
 
         node_attrs = {
             "id": n.name,
-            "link": link_template + n.name,
+            #"link": link_template + n.name,
+            "link" : n.link,
             "title": n.is_title,
             "group": node_groups[n.name],
             "fx": n.x_0,
@@ -160,11 +172,14 @@ def course_guide_data(request):
             links.append(
                 {
                     "source": s,
-                    "target": e,
+                    "target": e[0],
                     "source_group": node_groups[s],
-                    "target_group": node_groups[e],
+                    "target_group": node_groups[e[0]],
+                    "type": e[1],
                 }
             )
+
+    
 
     data = {
         "nodes": nodes,
